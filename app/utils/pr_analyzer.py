@@ -1,7 +1,9 @@
 import os
 import requests
 import logging
+import dotenv
 
+dotenv.load_dotenv()
 logging.basicConfig(level=logging.INFO)  # Set the logging level to INFO
 logger = logging.getLogger(__name__)
 
