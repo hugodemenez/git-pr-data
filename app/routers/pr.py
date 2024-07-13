@@ -79,8 +79,17 @@ async def ws_pr_analysis(websocket: WebSocket, git_pr_url: str):
     logger.info(f"Websocket connection established for PR: {git_pr_url}")
     await websocket.accept()
     try:
-        pr_analyzer.get_data(git_pr_url)
-        await websocket.send_json({"success": git_pr_url})
+        await websocket.send_json({"status": "pending", "added_lines": [], "removed_lines": []})
+        await asyncio.sleep(0)
+        try:
+            added_lines, removed_lines = pr_analyzer.get_data(git_pr_url)
+        except Exception as e:
+            await websocket.send_json({"status": "error", "error": str(e)})
+            await asyncio.sleep(0)
+            await websocket.close()
+        #TODO: SAVE DATA IN DATABASE
+        await websocket.send_json({"status": "success", "added_lines": added_lines, "removed_lines": removed_lines})
+        await asyncio.sleep(0)
         await websocket.close()
     except WebSocketDisconnect:
         print("Client disconnected")
